@@ -6,10 +6,10 @@ import (
 	"my-iris-app/repository"
 )
 
-func InitBookService() BookService {
+func InitBookService(bookRepo repository.BookRepository, bookConvertor convertors.BookConvertor) BookService {
 	return &BookServiceImpl{
-		repo:      repository.InitBookRepository(),
-		convertor: *convertors.InitBookConvertor(),
+		repo:      bookRepo,
+		convertor: bookConvertor,
 	}
 }
 
@@ -62,6 +62,7 @@ func (service *BookServiceImpl) UpdateBook(id int, bookRequest dtos.BookRequest)
 	}
 
 	book.Title = bookRequest.Title
+	book.Author = bookRequest.Author
 
 	updatedBook := service.repo.UpdateBook(id, book)
 

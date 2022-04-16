@@ -17,8 +17,9 @@ func InitBookRepository() BookRepository {
 
 func (repo *BookRepositoryImpl) GetBook(id int) (models.Book, error) {
 	book := models.Book{
-		Id:    0,
-		Title: "",
+		Id:     0,
+		Title:  "",
+		Author: "",
 	}
 
 	for _, b := range repo.books {
@@ -42,8 +43,9 @@ func (repo *BookRepositoryImpl) GetAllBooks() []models.Book {
 func (repo *BookRepositoryImpl) CreateBook(book models.Book) models.Book {
 
 	newBook := models.Book{
-		Id:    len(repo.books) + 1,
-		Title: book.Title,
+		Id:     len(repo.books) + 1,
+		Title:  book.Title,
+		Author: book.Author,
 	}
 
 	repo.books = append(repo.books, newBook)

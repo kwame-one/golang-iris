@@ -3,7 +3,9 @@ package controllers
 import (
 	"my-iris-app/dtos"
 	"my-iris-app/services"
+	customValidator "my-iris-app/validators"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
 )
 
@@ -11,8 +13,8 @@ type BookController struct {
 	service services.BookService
 }
 
-func InitBookController() *BookController {
-	return &BookController{service: services.InitBookService()}
+func InitBookController(bookService services.BookService) *BookController {
+	return &BookController{service: bookService}
 }
 
 func (c *BookController) GetAll(ctx iris.Context) {
@@ -27,11 +29,21 @@ func (c *BookController) Post(ctx iris.Context) {
 	err := ctx.ReadJSON(&b)
 
 	if err != nil {
-		ctx.StopWithProblem(
-			iris.StatusBadRequest,
-			iris.NewProblem().Title("Book creation failure").DetailErr(err))
 
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			errors := customValidator.CustomMessages(errs)
+
+			ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().
+				Title("Validator Error").
+				Key("errors", errors))
+
+			return
+
+		}
+
+		ctx.StopWithStatus(iris.StatusInternalServerError)
 		return
+
 	}
 
 	book, _ := c.service.CreateBook(b)
@@ -64,11 +76,21 @@ func (c *BookController) Put(ctx iris.Context) {
 	err := ctx.ReadJSON(&b)
 
 	if err != nil {
-		ctx.StopWithProblem(
-			iris.StatusBadRequest,
-			iris.NewProblem().Title("Book creation failure").DetailErr(err))
 
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			errors := customValidator.CustomMessages(errs)
+
+			ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().
+				Title("Validator Error").
+				Key("errors", errors))
+
+			return
+
+		}
+
+		ctx.StopWithStatus(iris.StatusInternalServerError)
 		return
+
 	}
 
 	book, err := c.service.UpdateBook(bookId, b)

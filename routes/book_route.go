@@ -2,6 +2,9 @@ package routes
 
 import (
 	"my-iris-app/controllers"
+	"my-iris-app/convertors"
+	"my-iris-app/repository"
+	"my-iris-app/services"
 
 	"github.com/kataras/iris/v12"
 )
@@ -13,7 +16,7 @@ type BookRoute struct {
 
 func InitBookRoute(p iris.Party) {
 	route := &BookRoute{
-		controller: *controllers.InitBookController(),
+		controller: *controllers.InitBookController(services.InitBookService(repository.InitBookRepository(), *convertors.InitBookConvertor())),
 		party:      p,
 	}
 
@@ -21,8 +24,4 @@ func InitBookRoute(p iris.Party) {
 	route.party.Post("/", route.controller.Post)
 	route.party.Put("/{id:int}", route.controller.Put)
 	route.party.Get("/{id:int}", route.controller.Get)
-}
-
-func (r *BookRoute) RegisterEndpoints() {
-
 }
